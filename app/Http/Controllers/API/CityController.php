@@ -4,8 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cities;
-use App\Models\CityTravelHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +30,16 @@ class CityController extends Controller
             $from_date = Carbon::parse($request->from_date)->format('Y-m-d');
             $to_date = Carbon::parse($request->to_date)->format('Y-m-d');
 
-            $cities = DB::table('cities')->join('city_travel_histories', 'city_travel_histories.city_id', '=', 'cities.id')->get();
-
-            $history = CityTravelHistory::where('from_date', '>=', $from_date)->where('from_date', '<=', $to_date)->orderBy('from_date')->get();
+            $c = DB::table('city_travel_histories')->
+                    leftJoin('cities', 'cities.id', '=', 'city_travel_histories.city_id')->
+                    select('cities.city_name', DB::raw('COUNT(city_travel_histories.traveller_id) as traveller_count'))->
+                    where('from_date', '>=', $from_date)->where('from_date', '<=', $to_date)->
+                    groupBy('cities.city_name')->
+                    get();
             
             return response()->json([
                 'status' => true,
-                'data' => $cities,
+                'data' => $c,
             ], 201);
 
         } catch (\Throwable $th) {
