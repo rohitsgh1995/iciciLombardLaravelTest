@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TravellerTableSeeder::class,
             CityTableSeeder::class,
-            CityTravelHistoryTableSeeder::class
+            CityTravelHistoryTableSeeder::class,
+            VehicleTableSeeder::class
         ]);
     }
 }
